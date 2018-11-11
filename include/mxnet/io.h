@@ -113,5 +113,36 @@ struct DataIteratorReg
  */
 #define MXNET_REGISTER_IO_ITER(name)                                    \
   DMLC_REGISTRY_REGISTER(::mxnet::DataIteratorReg, DataIteratorReg, name)
+
+
+//--------------------------------------------------------------
+// Handling 3rd party code exceptions - OpenCV
+//--------------------------------------------------------------
+
+/*! \brief exception thrown by CHECK_CV_NO_ASSERT following an OpenCV failed assert */
+struct OpenCVError : public dmlc::Error {
+  // constructor
+  OpenCVError(const std::string& msg_)
+    : dmlc::Error(msg_) {}
+};
+
+/*!
+ * \brief Macro that catches an OpenCV exception and maps it to mxnet::OpenCVError
+ *
+ * \code
+ * // example of handling an OpenCV exception
+ * CHECK_CV_NO_ASSERT(res = cv::imdecode(buf, -1));
+  * \endcode
+ */
+#define CHECK_CV_NO_ASSERT(x) \
+  try { (x); } \
+  catch (cv::Exception& e) {\
+    std::ostringstream error_stream_;\
+    error_stream_ << "mxnet.OpenCVError at " << __FILE__ << ":" << __LINE__\
+                  << ". Exception caught: " << e.what();\
+    throw OpenCVError(error_stream_.str());\
+  }
+
+
 }  // namespace mxnet
 #endif  // MXNET_IO_H_
