@@ -515,6 +515,35 @@ def test_ImageRecordIter_seed_augmentation():
     data2 = batch.data[0].asnumpy().astype(np.uint8)
     assert(np.array_equal(data,data2))
 
+
+# Test that we OpenCV assertion errors are mapped to in python exceptions.
+def test_ImageRecordIter_OpenCV_exceptions():
+    def expect_opencv_bwgif_exception():
+        mean_rgb = [123.68, 116.779, 103.939]
+        std_rgb = [58.393, 57.12, 57.375]
+
+        dataiter = mx.io.ImageRecordIter(
+            path_imgrec = "test_data/opencv-exceptions/bwgif.rec",
+            data_shape  = (3, 50, 50),
+            mean_r      = mean_rgb[0],
+            mean_g      = mean_rgb[1],
+            mean_b      = mean_rgb[2],
+            std_r       = std_rgb[0],
+            std_g       = std_rgb[1],
+            std_b       = std_rgb[2],
+            rand_crop   = False,
+            and_mirror  = False,
+            shuffle     = False,
+            batch_size  = 1,
+            preprocess_threads = 4,
+            prefetch_buffer = 1)
+        labelcount = [0 for i in range(10)]
+        batchcount = 0
+        for batch in dataiter:
+            pass
+    assertRaises(MXNetError, expect_opencv_bwgif_exception)
+
+
 if __name__ == "__main__":
     test_NDArrayIter()
     if h5py:
@@ -526,3 +555,4 @@ if __name__ == "__main__":
     test_CSVIter()
     test_ImageRecordIter_seed_augmentation()
     test_image_iter_exception()
+    test_ImageRecordIter_OpenCV_exceptions()
