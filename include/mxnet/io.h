@@ -143,6 +143,24 @@ struct OpenCVError : public dmlc::Error {
     throw OpenCVError(error_stream_.str());\
   }
 
+/*!
+ * \brief Macro that catches an OpenCV exception and then rethrows it with an extra
+ * message. This allows providing context to the low-level OpenCV error message.
+ *
+ * \code
+ * // example of rethrowing an OpenCV exception
+ * RETHROW_CV_EXC((res = aug->Process(res, &label_buf, prnds_[tid].get())),
+                       "Augmentation of image with index " << rec.image_index()
+                       << " failed.");
+ * \endcode
+ */
+#define RETHROW_CV_EXC(x, msg) \
+  try { (x); } \
+  catch (OpenCVError& e) {\
+    std::ostringstream error_stream_;\
+    error_stream_ << e.what() << msg;\
+    throw_with_nested(mxnet::OpenCVError(error_stream_.str()));\
+  }
 
 }  // namespace mxnet
 #endif  // MXNET_IO_H_
