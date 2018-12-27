@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.language.implicitConversions
 import scala.ref.WeakReference
 
 /**
@@ -39,6 +40,7 @@ object NDArray extends NDArrayBase {
   private val functions: Map[String, NDArrayFunction] = initNDArrayModule()
 
   val api = NDArrayAPI
+  val random = NDArrayRandomAPI
 
   private def addDependency(froms: Array[NDArray], tos: Array[NDArray]): Unit = {
     froms.foreach { from =>
